@@ -1,0 +1,188 @@
+#1
+
+class KnightTour {
+    static int N = 8;
+    static int[] xMove = {2, 1, -1, -2, -2, -1, 1, 2};
+    static int[] yMove = {1, 2, 2, 1, -1, -2, -2, -1};
+
+    static boolean solve(int[][] board, int x, int y, int moveCount) {
+        if (moveCount == N * N) return true;
+
+        for (int k = 0; k < 8; k++) {
+            int nextX = x + xMove[k];
+            int nextY = y + yMove[k];
+            if (isSafe(nextX, nextY, board)) {
+                board[nextX][nextY] = moveCount;
+                if (solve(board, nextX, nextY, moveCount + 1)) return true;
+                board[nextX][nextY] = -1; // backtrack
+            }
+        }
+        return false;
+    }
+
+    static boolean isSafe(int x, int y, int[][] board) {
+        return (x >= 0 && y >= 0 && x < N && y < N && board[x][y] == -1);
+    }
+
+    public static void main(String[] args) {
+        int[][] board = new int[N][N];
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                board[i][j] = -1;
+
+        board[0][0] = 0;
+        if (solve(board, 0, 0, 1)) printBoard(board);
+        else System.out.println("No solution");
+    }
+
+    static void printBoard(int[][] board) {
+        for (int[] row : board) {
+            for (int cell : row) System.out.printf("%2d ", cell);
+            System.out.println();
+        }
+    }
+}
+
+#2
+
+class MergeSort {
+    static void merge(int[] arr, int l, int m, int r) {
+        int n1 = m - l + 1, n2 = r - m;
+        int[] L = new int[n1];
+        int[] R = new int[n2];
+        for (int i = 0; i < n1; i++) L[i] = arr[l + i];
+        for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j];
+
+        int i = 0, j = 0, k = l;
+        while (i < n1 && j < n2) arr[k++] = (L[i] <= R[j]) ? L[i++] : R[j++];
+        while (i < n1) arr[k++] = L[i++];
+        while (j < n2) arr[k++] = R[j++];
+    }
+
+    static void mergeSort(int[] arr, int l, int r) {
+        if (l < r) {
+            int m = (l + r) / 2;
+            mergeSort(arr, l, m);
+            mergeSort(arr, m + 1, r);
+            merge(arr, l, m, r);
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {5, 2, 9, 1, 3};
+        mergeSort(arr, 0, arr.length - 1);
+        for (int i : arr) System.out.print(i + " ");
+    }
+}
+
+#3
+
+class QuickSort {
+    static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
+
+    static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high];
+        int i = low - 1;
+        for (int j = low; j < high; j++)
+            if (arr[j] < pivot)
+                swap(arr, ++i, j);
+        swap(arr, i + 1, high);
+        return i + 1;
+    }
+
+    static void swap(int[] arr, int i, int j) {
+        int temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {10, 7, 8, 9, 1, 5};
+        quickSort(arr, 0, arr.length - 1);
+        for (int i : arr) System.out.print(i + " ");
+    }
+}
+
+#4
+
+class FloydWarshall {
+    final static int INF = 99999;
+
+    public static void main(String[] args) {
+        int[][] graph = {
+            {0, 5, INF, 10},
+            {INF, 0, 3, INF},
+            {INF, INF, 0, 1},
+            {INF, INF, INF, 0}
+        };
+
+        int n = graph.length;
+        int[][] dist = new int[n][n];
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                dist[i][j] = graph[i][j];
+
+        for (int k = 0; k < n; k++)
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    if (dist[i][k] + dist[k][j] < dist[i][j])
+                        dist[i][j] = dist[i][k] + dist[k][j];
+
+        print(dist);
+    }
+
+    static void print(int[][] dist) {
+        for (int[] row : dist) {
+            for (int val : row)
+                System.out.print((val == INF ? "INF" : val) + " ");
+            System.out.println();
+        }
+    }
+}
+
+#5
+
+import java.util.*;
+
+class HuffmanNode {
+    int freq;
+    char ch;
+    HuffmanNode left, right;
+    HuffmanNode(char c, int f) { ch = c; freq = f; }
+}
+
+class HuffmanTree {
+    static void printCodes(HuffmanNode root, String code) {
+        if (root == null) return;
+        if (root.left == null && root.right == null)
+            System.out.println(root.ch + ": " + code);
+        printCodes(root.left, code + "0");
+        printCodes(root.right, code + "1");
+    }
+
+    public static void main(String[] args) {
+        char[] chars = {'A', 'B', 'C', 'D', 'E'};
+        int[] freq = {5, 9, 12, 13, 16};
+
+        PriorityQueue<HuffmanNode> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a.freq));
+        for (int i = 0; i < chars.length; i++)
+            pq.add(new HuffmanNode(chars[i], freq[i]));
+
+        while (pq.size() > 1) {
+            HuffmanNode x = pq.poll();
+            HuffmanNode y = pq.poll();
+            HuffmanNode z = new HuffmanNode('-', x.freq + y.freq);
+            z.left = x;
+            z.right = y;
+            pq.add(z);
+        }
+
+        HuffmanNode root = pq.peek();
+        printCodes(root, "");
+    }
+}
